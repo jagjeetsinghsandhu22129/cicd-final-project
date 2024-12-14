@@ -1,0 +1,26 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install AWS CLI
+        run: sudo apt-get install awscli -y
+
+      - name: Deploy Frontend
+        run: aws s3 cp frontend/ s3://ci-cd-frontend-bucket-unique-id --recursive
+
+      - name: Deploy Backend
+        run: |
+          ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_IP }} "
+          sudo python3 backend/app.py &"
